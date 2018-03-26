@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "Jordan Knight",
+      "authorEmail": "jakkaj@gmail.com",
+      "authorUrl": "https://github.com/jakkaj/generator-acsengine"
+    }
+  }
+}
