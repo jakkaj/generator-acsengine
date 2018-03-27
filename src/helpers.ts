@@ -1,13 +1,28 @@
-var keygen = require('ssh-keygen');
-var fs = require('fs');
+var keygen = require('ssh-keygen-temp');
+import * as fs from 'fs';
+import * as path from 'path';
 
 import * as password from 'generate-password';
 
 export default class Helpers {
+
+    private _dirbase:string;
+
+    public Init(){
+
+        this._dirbase = path.join(__dirname, 'keys');
+            
+        if(!fs.existsSync(this._dirbase)){
+            fs.mkdirSync(this._dirbase);
+        }
+    }
+
     public GenerateRSAKeys(): Promise<string[]> {
-        return new Promise((good, bad)=>{
-            var location = __dirname + '/foo_rsa';
-            var comment = 'joe@foobar.com';
+        this.Init();
+        return new Promise((good, bad)=>{           
+
+            var location = path.join(this._dirbase, 'azure_rsa');
+            var comment = 'key@azure';
             var password = false; // false and undefined will convert to an empty pw
     
             keygen({
@@ -21,7 +36,7 @@ export default class Helpers {
                 console.log('private key: ' + out.key);
                 console.log('public key: ' + out.pubKey);
                 
-                good([out.key, out.pubKey]);
+                good([out.key, out.pubKey.trim()]);
             });
           
         });
@@ -30,6 +45,8 @@ export default class Helpers {
     }
 
     public GenerateStrongPassword(): string {
+        this.Init();
+
         var pass = password.generate({
             length: 25,
             numbers: true,
@@ -37,7 +54,13 @@ export default class Helpers {
             symbols: true,
 
         });
+
+        pass = JSON.stringify(pass).replace(/^\"+|\"+$/g, "").replace(/\\/g, "\\\\"); //make it safe for things
+
         console.log(`Password: ${pass}`);
-        return "";
+
+        var location = path.join(this._dirbase, 'windows_password.txt');
+        fs.writeFileSync(location, pass);
+        return pass;
     }
 }
