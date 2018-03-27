@@ -173,6 +173,17 @@ class AcsGenerator extends Generator {
       this.destinationPath('powershell/1_generate_acs_template.ps1')
     );
 
+    this.fs.copy(
+      this.templatePath('kube/kube.linux.yaml'),
+      this.destinationPath('kube/kube.linux.yaml')
+    );
+
+    this.fs.copy(
+      this.templatePath('kube/kube.windows.yaml'),
+      this.destinationPath('kube/kube.windows.yaml')
+    );
+
+
     
     
     this.log("Remember to install the ACS-Engine binaries in your path: https://github.com/Azure/acs-engine/releases")
