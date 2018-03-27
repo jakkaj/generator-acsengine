@@ -6,7 +6,7 @@ if(($loc -like '*powershell*')){
 
 $loc = Get-Location
 
-$fullPath = "$loc\_output\acstest\kubeconfig\kubeconfig.<%= azureRegion %>.json"
+$fullPath = "$loc\_output\<%= dnsPrefix %>\kubeconfig\kubeconfig.<%= azureRegion %>.json"
 
 
 $env:KUBECONFIG = $fullPath
