@@ -150,6 +150,24 @@ class AcsGenerator extends Generator {
       }
     );
 
+    this.fs.copyTpl(
+      this.templatePath('powershell/x_delete_resource_group.ps1'),
+      this.destinationPath('powershell/x_delete_resource_group.ps1'),
+      {
+        subscription: this.props.subscription, 
+        resourceGroup: this.props.resourceGroup         
+      }
+    );
+
+    this.fs.copyTpl(
+      this.templatePath('powershell/4_set_kubectl_config.ps1'),
+      this.destinationPath('powershell/4_set_kubectl_config.ps1'),
+      {
+        dnsPrefix: this.props.dnsPrefix, 
+        azureRegion: this.props.azureRegion         
+      }
+    );
+
     this.fs.copy(
       this.templatePath('powershell/1_generate_acs_template.ps1'),
       this.destinationPath('powershell/1_generate_acs_template.ps1')
