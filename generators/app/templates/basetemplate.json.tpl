@@ -16,7 +16,9 @@
         "count": <%= windowsInstances %>,
         "vmSize": "Standard_D2_v2",
         "availabilityProfile": "AvailabilitySet",
-        "osType": "Windows"
+        "osType": "Windows",
+        "OSDiskSizeGB": 200,
+        "storageProfile" : "ManagedDisks"
       },
       {
         "name": "linuxpool",
