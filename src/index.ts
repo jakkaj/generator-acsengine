@@ -74,10 +74,10 @@ class AcsGenerator extends Generator {
   async writing() {
     var done = this.async();
     this.log(
-      `Okay - let's build ${chalk.red(this.props.linuxContainers)} Linux nodes and ${chalk.red(this.props.windowsContainers)} Windows nodes!`
+      `Okay - let's build ${chalk.red(this.props.linuxInstances)} Linux nodes and ${chalk.red(this.props.windowsInstances)} Windows nodes!`
       );
 
-      var h = new helpers();
+      var h = new helpers(this.destinationPath(""));
       var rsa = await h.GenerateRSAKeys();
       var passwd = h.GenerateStrongPassword();
 

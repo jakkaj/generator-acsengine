@@ -7,10 +7,17 @@ import * as password from 'generate-password';
 export default class Helpers {
 
     private _dirbase:string;
-
+    private _baseTemplates:string;
+    /**
+     *
+     */
+    constructor(baseTemplates:string) {
+        
+        this._baseTemplates = baseTemplates;        
+    }
     public Init(){
 
-        this._dirbase = path.join(__dirname, 'keys');
+        this._dirbase = path.join(this._baseTemplates, 'keys');
             
         if(!fs.existsSync(this._dirbase)){
             fs.mkdirSync(this._dirbase);
