@@ -87,7 +87,7 @@ class AcsGenerator extends Generator {
 
       if(win && linux){
         this.fs.copyTpl(
-          this.templatePath('basetemplate.json'),
+          this.templatePath('basetemplate.json.tpl'),
           this.destinationPath('buildacs.json'),
           {
             dnsPrefix: this.props.dnsPrefix, 
@@ -101,7 +101,7 @@ class AcsGenerator extends Generator {
         );
       }else if(win){
         this.fs.copyTpl(
-          this.templatePath('basetemplate_win.json'),
+          this.templatePath('basetemplate_win.json.tpl'),
           this.destinationPath('buildacs.json'),
           {
             dnsPrefix: this.props.dnsPrefix, 
@@ -115,7 +115,7 @@ class AcsGenerator extends Generator {
         );
       }else{
         this.fs.copyTpl(
-          this.templatePath('basetemplate_linux.json'),
+          this.templatePath('basetemplate_linux.json.tpl'),
           this.destinationPath('buildacs.json'),
           {
             dnsPrefix: this.props.dnsPrefix, 

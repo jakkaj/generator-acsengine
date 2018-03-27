@@ -65,3 +65,4 @@ typings/
 
 generators/**/*.js
 generators/**/*.js.map
+generators/app/keys
