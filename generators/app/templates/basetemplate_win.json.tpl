@@ -12,7 +12,7 @@
     },
     "agentPoolProfiles": [
       {
-        "name": "windowspool",
+        "name": "windowspool1",
         "count": <%= windowsInstances %>,
         "vmSize": "Standard_D2_v2",
         "availabilityProfile": "AvailabilitySet",
