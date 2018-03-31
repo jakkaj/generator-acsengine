@@ -1,6 +1,6 @@
 {
   "name": "generator-acsengine",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description":
     "Simple Yeoman Generator to help get started with the ACS Engine",
   "homepage": "https://github.com/jakkaj/generator-acsengine",

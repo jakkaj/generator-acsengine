@@ -47,7 +47,7 @@ ENV HOME /home/acsuser
 RUN npm install -g yo
 RUN npm install -g generator-acsengine
 
-RUN echo "" >> /home/acsuser/.config/configstore/insight-yo.json
+COPY insight-yo.json /home/acsuser/.config/configstore/insight-yo.json
 
 RUN chmod 777 -R /home/acsuser/.config
 
@@ -70,6 +70,6 @@ RUN find /home/acsuser -type d -user root -exec chown -R acsuser: {} +
 
 #CMD ["/usr/sbin/sshd", "-D"]
 USER acsuser
-RUN echo "alias k=\"kubectl\"" > ~/.bash_profile
-RUN echo "source <(kubectl completion bash)" >> ~/.bash_profile
+RUN echo "alias k=\"kubectl\"" > ~/.bashrc
+RUN echo "source <(kubectl completion bash)" >> ~/.bashrc
 CMD ["/bin/bash"]

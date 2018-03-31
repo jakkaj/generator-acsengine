@@ -13,7 +13,8 @@ echo "This script will help you create an Azure service principal"
 read -p "Please enter your Azure subscription id: " -r
 
 az account set --subscription "${REPLY}"
-echo $(az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${REPLY}") >> azure_sp.json
+echo "{\"subs\":\"${REPLY}\"}" > "azure_subs.json"
+echo $(az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${REPLY}") > azure_sp.json
 cat azure_sp.json | python -m json.tool
 echo "Created successfully. Saved to azure_sp.json."
 echo "Now run 'yo acsengine'"

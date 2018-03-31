@@ -4,6 +4,9 @@ const chalk = require('chalk');
 const yosay = require('yosay');
 import helpers from './helpers';
 import * as chmod from 'chmod';
+import * as fs from 'fs';
+import * as path from 'path';
+
 
 class AcsGenerator extends Generator {
   prompting() {
@@ -11,6 +14,32 @@ class AcsGenerator extends Generator {
     this.log(
       yosay(`Welcome to the fantastic ${chalk.red('generator-acsengine')} generator!`)
     );
+
+    var defaults = {
+      ServicePrincipleId : "SomeServicePrincipleId",
+      ServicePrincipleSecret : "SomeServicePrincipleSecret",
+      ServiceSubscriptionId : "SomeServiceSubscriptionId"
+    }
+
+    var baseDir = process.cwd();
+
+    var sp = path.join(baseDir, "azure_sp.json");
+    var subs = path.join(baseDir, "azure_subs.json");
+
+    if(fs.existsSync(subs)){
+      var subsdatafile = fs.readFileSync(subs, 'utf8');
+   
+      var subsdata = JSON.parse(subsdatafile);
+      defaults.ServiceSubscriptionId = subsdata.subs;     
+    }
+
+    if(fs.existsSync(sp)){
+      var spdatafile = fs.readFileSync(sp, 'utf8');
+      
+      var spdata = JSON.parse(spdatafile);
+      defaults.ServicePrincipleId = spdata.appId;
+      defaults.ServicePrincipleSecret = spdata.password;
+    }
 
     const prompts = [
       {
@@ -35,19 +64,19 @@ class AcsGenerator extends Generator {
         type: 'input',
         name: 'spClientId',
         message: 'Please enter your service principal ClientId (AppId). If you do not know what this is, follow this guide: https://github.com/Azure/acs-engine/blob/master/docs/serviceprincipal.md',
-        default: "SomeServicePrincipleId"
+        default: defaults.ServicePrincipleId
       },
       {
         type: 'input',
         name: 'spSecret',
         message: 'Please enter your service principal password:',
-        default: "SomeServicePrincipleSecret"
+        default: defaults.ServicePrincipleSecret
       },
       {
         type: 'input',
         name: 'subscription',
         message: 'Please enter your subscription id:',
-        default: "SomeServiceSubscriptionId"
+        default: defaults.ServiceSubscriptionId
       },
       {
         type: 'input',
