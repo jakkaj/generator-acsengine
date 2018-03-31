@@ -38,6 +38,9 @@ RUN echo "root:temppw" | chpasswd
 RUN echo "alias k=\"kubectl\"" > ~/.bash_profile
 RUN echo "PermitRootLogin yes" > /etc/ssh/sshd_config
 
+COPY sp.sh ./sp.sh
+RUN chmod +x sp.sh
+
 EXPOSE 22
 
 CMD ["/usr/sbin/sshd", "-D"]

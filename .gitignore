@@ -66,3 +66,4 @@ typings/
 generators/**/*.js
 generators/**/*.js.map
 generators/app/keys
+azure_sp.json
