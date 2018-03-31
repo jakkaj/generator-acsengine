@@ -1,9 +1,9 @@
 'use strict';
-const Generator =  require('yeoman-generator');
+const Generator = require('yeoman-generator');
 const chalk = require('chalk');
 const yosay = require('yosay');
 import helpers from './helpers';
-
+import * as chmod from 'chmod';
 
 class AcsGenerator extends Generator {
   prompting() {
@@ -24,7 +24,7 @@ class AcsGenerator extends Generator {
         name: 'linuxInstances',
         message: 'How many Linux based nodes would you like?',
         default: 2
-      }, 
+      },
       {
         type: 'input',
         name: 'dnsPrefix',
@@ -61,9 +61,11 @@ class AcsGenerator extends Generator {
         message: 'Please enter an Azure region. Type "az account list-locations" to get the list (use the "name" field!).',
         default: "southeastasia"
       }
-      
+
 
     ];
+
+    this.isWin = process.platform === "win32";
 
     return this.prompt(prompts).then(props => {
       // To access props later use this.props.someAnswer;
@@ -75,88 +77,122 @@ class AcsGenerator extends Generator {
     var done = this.async();
     this.log(
       `Okay - let's build ${chalk.red(this.props.linuxInstances)} Linux nodes and ${chalk.red(this.props.windowsInstances)} Windows nodes!`
+    );
+
+    var h = new helpers(this.destinationPath(""));
+    var rsa = await h.GenerateRSAKeys();
+    var passwd = h.GenerateStrongPassword();
+
+
+    var linux: boolean = this.props.linuxInstances != "0" && this.props.linuxInstances != 0;
+    var win: boolean = this.props.windowsInstances != "0" && this.props.windowsInstances != 0;
+
+    if (win && linux) {
+      this.fs.copyTpl(
+        this.templatePath('basetemplate.json.tpl'),
+        this.destinationPath('buildacs.json'),
+        {
+          dnsPrefix: this.props.dnsPrefix,
+          windowsInstances: this.props.windowsInstances,
+          linuxInstances: this.props.linuxInstances,
+          adminPassword: passwd,
+          sshPublicKey: rsa[1],
+          spClientId: this.props.spClientId,
+          spSecret: this.props.spSecret
+        }
       );
-
-      var h = new helpers(this.destinationPath(""));
-      var rsa = await h.GenerateRSAKeys();
-      var passwd = h.GenerateStrongPassword();
-
-
-    var linux:boolean = this.props.linuxInstances != "0" && this.props.linuxInstances != 0;
-    var win:boolean = this.props.windowsInstances != "0" && this.props.windowsInstances != 0;
-
-      if(win && linux){
-        this.fs.copyTpl(
-          this.templatePath('basetemplate.json.tpl'),
-          this.destinationPath('buildacs.json'),
-          {
-            dnsPrefix: this.props.dnsPrefix, 
-            windowsInstances: this.props.windowsInstances, 
-            linuxInstances: this.props.linuxInstances, 
-            adminPassword: passwd, 
-            sshPublicKey: rsa[1], 
-            spClientId: this.props.spClientId,
-            spSecret: this.props.spSecret
-          }
-        );
-      }else if(win){
-        this.fs.copyTpl(
-          this.templatePath('basetemplate_win.json.tpl'),
-          this.destinationPath('buildacs.json'),
-          {
-            dnsPrefix: this.props.dnsPrefix, 
-            windowsInstances: this.props.windowsInstances, 
-            linuxInstances: this.props.linuxInstances, 
-            adminPassword: passwd, 
-            sshPublicKey: rsa[1], 
-            spClientId: this.props.spClientId,
-            spSecret: this.props.spSecret
-          }
-        );
-      }else{
-        this.fs.copyTpl(
-          this.templatePath('basetemplate_linux.json.tpl'),
-          this.destinationPath('buildacs.json'),
-          {
-            dnsPrefix: this.props.dnsPrefix, 
-            windowsInstances: this.props.windowsInstances, 
-            linuxInstances: this.props.linuxInstances, 
-            adminPassword: passwd, 
-            sshPublicKey: rsa[1], 
-            spClientId: this.props.spClientId,
-            spSecret: this.props.spSecret
-          }
-        );
-      }
+    } else if (win) {
+      this.fs.copyTpl(
+        this.templatePath('basetemplate_win.json.tpl'),
+        this.destinationPath('buildacs.json'),
+        {
+          dnsPrefix: this.props.dnsPrefix,
+          windowsInstances: this.props.windowsInstances,
+          linuxInstances: this.props.linuxInstances,
+          adminPassword: passwd,
+          sshPublicKey: rsa[1],
+          spClientId: this.props.spClientId,
+          spSecret: this.props.spSecret
+        }
+      );
+    } else {
+      this.fs.copyTpl(
+        this.templatePath('basetemplate_linux.json.tpl'),
+        this.destinationPath('buildacs.json'),
+        {
+          dnsPrefix: this.props.dnsPrefix,
+          windowsInstances: this.props.windowsInstances,
+          linuxInstances: this.props.linuxInstances,
+          adminPassword: passwd,
+          sshPublicKey: rsa[1],
+          spClientId: this.props.spClientId,
+          spSecret: this.props.spSecret
+        }
+      );
+    }
     
 
-    this.fs.copyTpl(
-      this.templatePath('powershell/2_prepare_account.ps1'),
-      this.destinationPath('powershell/2_prepare_account.ps1'),
-      {
-        subscription: this.props.subscription, 
-        resourceGroup: this.props.resourceGroup,
-        azureRegion: this.props.azureRegion      
-      }
+    if (this.isWin) {
+
+      this.fs.copy(
+        this.templatePath('powershell/1_generate_acs_template.ps1'),
+        this.destinationPath('powershell/1_generate_acs_template.ps1')
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('powershell/2_prepare_account.ps1'),
+        this.destinationPath('powershell/2_prepare_account.ps1'),
+        {
+          subscription: this.props.subscription,
+          resourceGroup: this.props.resourceGroup,
+          azureRegion: this.props.azureRegion
+        }
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('powershell/3_deploy_cluster.ps1'),
+        this.destinationPath('powershell/3_deploy_cluster.ps1'),
+        {
+          subscription: this.props.subscription,
+          resourceGroup: this.props.resourceGroup,
+          dnsPrefix: this.props.dnsPrefix
+        }
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('powershell/4_set_kubectl_config.ps1'),
+        this.destinationPath('powershell/4_set_kubectl_config.ps1'),
+        {
+          dnsPrefix: this.props.dnsPrefix,
+          azureRegion: this.props.azureRegion
+        }
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('powershell/x_delete_resource_group.ps1'),
+        this.destinationPath('powershell/x_delete_resource_group.ps1'),
+        {
+          subscription: this.props.subscription,
+          resourceGroup: this.props.resourceGroup
+        }
+      );
+
+    }
+
+    //bash stuff
+
+    this.fs.copy(
+      this.templatePath('bash/1_generate_acs_template.sh'),
+      this.destinationPath('bash/1_generate_acs_template.sh')
     );
 
     this.fs.copyTpl(
       this.templatePath('bash/2_prepare_account.sh'),
       this.destinationPath('bash/2_prepare_account.sh'),
       {
-        subscription: this.props.subscription, 
+        subscription: this.props.subscription,
         resourceGroup: this.props.resourceGroup,
-        azureRegion: this.props.azureRegion      
-      }
-    );
-
-    this.fs.copyTpl(
-      this.templatePath('powershell/3_deploy_cluster.ps1'),
-      this.destinationPath('powershell/3_deploy_cluster.ps1'),
-      {
-        subscription: this.props.subscription, 
-        resourceGroup: this.props.resourceGroup,
-        dnsPrefix: this.props.dnsPrefix      
+        azureRegion: this.props.azureRegion
       }
     );
 
@@ -164,60 +200,33 @@ class AcsGenerator extends Generator {
       this.templatePath('bash/3_deploy_cluster.sh'),
       this.destinationPath('bash/3_deploy_cluster.sh'),
       {
-        subscription: this.props.subscription, 
+        subscription: this.props.subscription,
         resourceGroup: this.props.resourceGroup,
-        dnsPrefix: this.props.dnsPrefix      
+        dnsPrefix: this.props.dnsPrefix
+      }
+    );
+    this.fs.copyTpl(
+      this.templatePath('bash/4_set_kubectl_config.sh'),
+      this.destinationPath('bash/4_set_kubectl_config.sh'),
+      {
+        dnsPrefix: this.props.dnsPrefix,
+        azureRegion: this.props.azureRegion
       }
     );
 
-    this.fs.copyTpl(
-      this.templatePath('powershell/x_delete_resource_group.ps1'),
-      this.destinationPath('powershell/x_delete_resource_group.ps1'),
-      {
-        subscription: this.props.subscription, 
-        resourceGroup: this.props.resourceGroup         
-      }
-    );
+    
+
 
     this.fs.copyTpl(
       this.templatePath('bash/x_delete_resource_group.sh'),
       this.destinationPath('bash/x_delete_resource_group.sh'),
       {
-        subscription: this.props.subscription, 
-        resourceGroup: this.props.resourceGroup         
+        subscription: this.props.subscription,
+        resourceGroup: this.props.resourceGroup
       }
-    );
+    );    
 
-    this.fs.copyTpl(
-      this.templatePath('powershell/4_set_kubectl_config.ps1'),
-      this.destinationPath('powershell/4_set_kubectl_config.ps1'),
-      {
-        dnsPrefix: this.props.dnsPrefix, 
-        azureRegion: this.props.azureRegion         
-      }
-    );
-
-    this.fs.copyTpl(
-      this.templatePath('bash/4_set_kubectl_config.sh'),
-      this.destinationPath('bash/4_set_kubectl_config.sh'),
-      {
-        dnsPrefix: this.props.dnsPrefix, 
-        azureRegion: this.props.azureRegion         
-      }
-    );
-
-    this.fs.copy(
-      this.templatePath('powershell/1_generate_acs_template.ps1'),
-      this.destinationPath('powershell/1_generate_acs_template.ps1')
-    );
-
-   
-
-
-    this.fs.copy(
-      this.templatePath('bash/1_generate_acs_template.sh'),
-      this.destinationPath('bash/1_generate_acs_template.sh')
-    );
+    //kube templates
 
     this.fs.copy(
       this.templatePath('kube/kube.linux.yaml'),
@@ -228,18 +237,30 @@ class AcsGenerator extends Generator {
       this.templatePath('kube/kube.windows.yaml'),
       this.destinationPath('kube/kube.windows.yaml')
     );
-    
-    
-    this.log("Remember to install the ACS-Engine binaries in your path: https://github.com/Azure/acs-engine/releases")
-    this.log("Now switch to the 'bash' or 'powershell' folder and run the scripts in order. Remember to follow the instructions here: https://github.com/jakkaj/generator-acsengine")
 
+
+  
     done();
+  }
+
+  end(){
+    if(!this.isWin){
+      chmod(this.destinationPath('bash/1_generate_acs_template.sh'), 777);
+      chmod(this.destinationPath('bash/2_prepare_account.sh'), 777);
+      chmod(this.destinationPath('bash/3_deploy_cluster.sh'), 777);
+      chmod(this.destinationPath('bash/4_set_kubectl_config.sh'), 777);      
+      chmod(this.destinationPath('bash/x_delete_resource_group.sh'), 777);  
+      
+      this.log("Remember to install the ACS-Engine binaries in your path: https://github.com/Azure/acs-engine/releases")
+      this.log("Now switch to the 'bash' or 'powershell' folder and run the scripts in order. Remember to follow the instructions here: https://github.com/jakkaj/generator-acsengine")
+  
+    }  
   }
 
   install() {
     //this.installDependencies();
   }
-  
+
 }
 
 export = AcsGenerator;

@@ -1,6 +1,6 @@
 {
   "name": "generator-acsengine",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description":
     "Simple Yeoman Generator to help get started with the ACS Engine",
   "homepage": "https://github.com/jakkaj/generator-acsengine",
@@ -38,6 +38,7 @@
   "dependencies": {
     "@types/node": "^9.6.0",
     "chalk": "^2.1.0",
+    "chmod": "^0.2.1",
     "generate-password": "^1.4.0",
     "keypair": "^1.0.1",
     "node-rsa": "^0.4.2",
