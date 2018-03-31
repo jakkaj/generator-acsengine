@@ -9,6 +9,10 @@ It generates the Windows box admin passwords and ssh keys for Linux. These are s
 
 It generates scripts to deploy the cluster and to delete it again. It also helps import kubectl configs for ease of use (by making a temp env var). 
 
+### Video
+
+See [https://youtu.be/J3CZkL7rt6Y](https://youtu.be/J3CZkL7rt6Y) for a video demo of how to use this generator (follow this readme also!).
+
 ### Requirements
 
 You'll need Powershell (working on a bash version). 

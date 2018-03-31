@@ -74,10 +74,10 @@ class AcsGenerator extends Generator {
   async writing() {
     var done = this.async();
     this.log(
-      `Okay - let's build ${chalk.red(this.props.linuxContainers)} Linux nodes and ${chalk.red(this.props.windowsContainers)} Windows nodes!`
+      `Okay - let's build ${chalk.red(this.props.linuxInstances)} Linux nodes and ${chalk.red(this.props.windowsInstances)} Windows nodes!`
       );
 
-      var h = new helpers();
+      var h = new helpers(this.destinationPath(""));
       var rsa = await h.GenerateRSAKeys();
       var passwd = h.GenerateStrongPassword();
 
@@ -210,6 +210,17 @@ class AcsGenerator extends Generator {
       this.templatePath('powershell/1_generate_acs_template.ps1'),
       this.destinationPath('powershell/1_generate_acs_template.ps1')
     );
+
+    this.fs.copy(
+      this.templatePath('kube/kube.linux.yaml'),
+      this.destinationPath('kube/kube.linux.yaml')
+    );
+
+    this.fs.copy(
+      this.templatePath('kube/kube.windows.yaml'),
+      this.destinationPath('kube/kube.windows.yaml')
+    );
+
 
     this.fs.copy(
       this.templatePath('bash/1_generate_acs_template.sh'),

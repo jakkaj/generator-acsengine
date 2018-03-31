@@ -3,7 +3,7 @@ import helpers from './helpers';
 class test{
 
     public run(){
-        var h = new helpers();
+        var h = new helpers(__dirname);
         h.GenerateRSAKeys();
         h.GenerateStrongPassword();
     }
