@@ -141,8 +141,28 @@ class AcsGenerator extends Generator {
     );
 
     this.fs.copyTpl(
+      this.templatePath('bash/2_prepare_account.sh'),
+      this.destinationPath('bash/2_prepare_account.sh'),
+      {
+        subscription: this.props.subscription, 
+        resourceGroup: this.props.resourceGroup,
+        azureRegion: this.props.azureRegion      
+      }
+    );
+
+    this.fs.copyTpl(
       this.templatePath('powershell/3_deploy_cluster.ps1'),
       this.destinationPath('powershell/3_deploy_cluster.ps1'),
+      {
+        subscription: this.props.subscription, 
+        resourceGroup: this.props.resourceGroup,
+        dnsPrefix: this.props.dnsPrefix      
+      }
+    );
+
+    this.fs.copyTpl(
+      this.templatePath('bash/3_deploy_cluster.sh'),
+      this.destinationPath('bash/3_deploy_cluster.sh'),
       {
         subscription: this.props.subscription, 
         resourceGroup: this.props.resourceGroup,
@@ -160,8 +180,26 @@ class AcsGenerator extends Generator {
     );
 
     this.fs.copyTpl(
+      this.templatePath('bash/x_delete_resource_group.sh'),
+      this.destinationPath('bash/x_delete_resource_group.sh'),
+      {
+        subscription: this.props.subscription, 
+        resourceGroup: this.props.resourceGroup         
+      }
+    );
+
+    this.fs.copyTpl(
       this.templatePath('powershell/4_set_kubectl_config.ps1'),
       this.destinationPath('powershell/4_set_kubectl_config.ps1'),
+      {
+        dnsPrefix: this.props.dnsPrefix, 
+        azureRegion: this.props.azureRegion         
+      }
+    );
+
+    this.fs.copyTpl(
+      this.templatePath('bash/4_set_kubectl_config.sh'),
+      this.destinationPath('bash/4_set_kubectl_config.sh'),
       {
         dnsPrefix: this.props.dnsPrefix, 
         azureRegion: this.props.azureRegion         
@@ -171,6 +209,11 @@ class AcsGenerator extends Generator {
     this.fs.copy(
       this.templatePath('powershell/1_generate_acs_template.ps1'),
       this.destinationPath('powershell/1_generate_acs_template.ps1')
+    );
+
+    this.fs.copy(
+      this.templatePath('bash/1_generate_acs_template.sh'),
+      this.destinationPath('bash/1_generate_acs_template.sh')
     );
 
     
