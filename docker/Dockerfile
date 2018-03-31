@@ -5,7 +5,7 @@ USER root
 RUN apt-get update
 
 
-RUN apt-get install openssh-server -y
+#RUN apt-get install openssh-server -y
 
 RUN apt-get install curl wget -y
 
@@ -23,7 +23,7 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
 RUN mv kubectl /usr/local/bin
 RUN chmod +x /usr/local/bin/kubectl
 
-RUN npm install -g generator-acsengine
+RUN apt-get install sudo
 
 #install az cli
 COPY installaz.sh ./installaz.sh
@@ -33,14 +33,43 @@ RUN ./installaz.sh
  #customisations and things
 RUN mkdir -p /var/run/sshd
 
-RUN echo "root:temppw" | chpasswd
 
-RUN echo "alias k=\"kubectl\"" > ~/.bash_profile
-RUN echo "PermitRootLogin yes" > /etc/ssh/sshd_config
+
+#user mode stuff
+
+
+
+RUN adduser --disabled-password --gecos "" acsuser && \
+  echo "acsuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+ENV HOME /home/acsuser
+
+RUN npm install -g yo
+RUN npm install -g generator-acsengine
+
+RUN echo "" >> /home/acsuser/.config/configstore/insight-yo.json
+
+RUN chmod 777 -R /home/acsuser/.config
+
+WORKDIR /home/acsuser
 
 COPY sp.sh ./sp.sh
 RUN chmod +x sp.sh
 
-EXPOSE 22
+RUN find /home/acsuser -type d -user root -exec chown -R acsuser: {} +
 
-CMD ["/usr/sbin/sshd", "-D"]
+#RUN echo "root:temppw" | chpasswd
+
+
+#RUN echo "PermitRootLogin yes" > /etc/ssh/sshd_config
+
+
+
+
+#EXPOSE 22
+
+#CMD ["/usr/sbin/sshd", "-D"]
+USER acsuser
+RUN echo "alias k=\"kubectl\"" > ~/.bash_profile
+RUN echo "source <(kubectl completion bash)" >> ~/.bash_profile
+CMD ["/bin/bash"]

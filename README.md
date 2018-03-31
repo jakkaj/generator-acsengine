@@ -35,12 +35,11 @@ You can pull a pre-prepared environment in "jakkaj/acsengine".
 
 - Install Docker
 - `docker pull jakkaj/acsengine`
-- `docker run -p 22:22 -t jakkaj/acsengine`
-- `ssh root@localhost`
-    - The default root password is "temppw". You should probably change this! You should disable password login once you have set up ssh keys.  
-    - You should generate some rsa keys and copy them to the container via ssh. See [this](https://www.ssh.com/ssh/copy-id) for instructions. 
-    - You can exec in to the container using `docker exec -it <containerid> bash`. But ssh is cool too when you're logging in to the container a lot. It's simpler over time. 
-    - This assumes you've exposed port 22 to your local machine. You may need to change the port exposed if you're on a machine sshd running already 
+- `docker run -d -t jakkaj/acsengine`
+- `docker ps -a` to find running image id
+- `docker exec -it <containerid> bash`
+- `./sp.sh` to start with your service principal
+- `yo ascengine` and you're on your way.  
 
 ### Things you're going to need before you start
 
