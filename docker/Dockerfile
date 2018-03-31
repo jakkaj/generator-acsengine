@@ -33,11 +33,7 @@ RUN ./installaz.sh
  #customisations and things
 RUN mkdir -p /var/run/sshd
 
-
-
 #user mode stuff
-
-
 
 RUN adduser --disabled-password --gecos "" acsuser && \
   echo "acsuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -46,6 +42,7 @@ ENV HOME /home/acsuser
 
 RUN npm install -g yo
 RUN npm install -g generator-acsengine
+RUN npm install -g kubecfg
 
 COPY insight-yo.json /home/acsuser/.config/configstore/insight-yo.json
 
@@ -58,17 +55,13 @@ RUN chmod +x sp.sh
 
 RUN find /home/acsuser -type d -user root -exec chown -R acsuser: {} +
 
+## If you want to be able to SSH in to this. 
 #RUN echo "root:temppw" | chpasswd
-
-
 #RUN echo "PermitRootLogin yes" > /etc/ssh/sshd_config
-
-
-
-
 #EXPOSE 22
-
 #CMD ["/usr/sbin/sshd", "-D"]
+
+
 USER acsuser
 RUN echo "alias k=\"kubectl\"" > ~/.bashrc
 RUN echo "source <(kubectl completion bash)" >> ~/.bashrc

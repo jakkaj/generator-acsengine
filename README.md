@@ -148,7 +148,35 @@ This will help you out by adding a temp env var to your current powershell sessi
 
 You'll have to run this every new powershell session or manually integrate the file in to your central ~/.kube/config file. Check the powershell script `.\powershell\4_set_kubectl_config.ps1` for the path to the config file. 
 
-#### Delete the resource group
+#### Permanently save the config
+
+On Linux, there is a tool called [kubecfg](https://github.com/jakkaj/kubecfg) you can install (it's already in the Docker container).
+
+```
+npm install -g kubecfg
+```
+
+Navigate to the path that your config file resides and type:
+
+```
+kubecfg -a <filename>
+```
+
+To remove that file 
+
+```
+kubecfg -r <filename>
+```
+
+This will update your .bashrc with the new paths. 
+
+You'll need to reload .bashrc after you've run the app (any assistance on how to elegantly do this automatically is welcome!)
+
+```
+. ~/.bashrc
+```
+
+### Delete the resource group
 
 ```
 .\powershell\x_delete_resource_group.ps1
