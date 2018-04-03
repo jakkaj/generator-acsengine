@@ -104,7 +104,7 @@ class AcsGenerator extends Generator {
     });
   }
 
-  private _runTemplateTemp(source:string){
+  private _compose(source:string){
     
   }
 
