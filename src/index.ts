@@ -104,6 +104,10 @@ class AcsGenerator extends Generator {
     });
   }
 
+  private _runTemplateTemp(source:string){
+    
+  }
+
   private async _copyfilesfortest():Promise<boolean>{
     return new Promise<boolean>((good, bad)=>{
       var basePath = path.join(__dirname, "templates");
@@ -251,7 +255,7 @@ class AcsGenerator extends Generator {
         dnsPrefix: this.props.dnsPrefix
       }
     );
-    
+
     this.fs.copyTpl(
       this.templatePath('bash/4_set_kubectl_config.sh'),
       this.destinationPath('bash/4_set_kubectl_config.sh'),
