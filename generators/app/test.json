@@ -1,0 +1,293 @@
+{
+  "domain": null,
+  "_events": {},
+  "_eventsCount": 0,
+  "options": {
+    "env": {
+      "domain": null,
+      "_events": {},
+      "_eventsCount": 1,
+      "arguments": [],
+      "options": {},
+      "adapter": {},
+      "cwd": "C:\\temp\\demotemp\\demo20",
+      "store": {
+        "_generators": {},
+        "_meta": {
+          "generator:app": {
+            "resolved":
+              "C:\\Users\\jakka\\AppData\\Roaming\\npm\\node_modules\\generator-generator\\app\\index.js",
+            "namespace": "generator:app"
+          },
+          "generator:subgenerator": {
+            "resolved":
+              "C:\\Users\\jakka\\AppData\\Roaming\\npm\\node_modules\\generator-generator\\subgenerator\\index.js",
+            "namespace": "generator:subgenerator"
+          },
+          "acsengine:app": {
+            "resolved":
+              "C:\\Users\\jakka\\Documents\\GitHub\\generator-acsengine\\generators\\app\\index.js",
+            "namespace": "acsengine:app"
+          }
+        }
+      },
+      "runLoop": {
+        "queueNames": [
+          "initializing",
+          "prompting",
+          "configuring",
+          "default",
+          "writing",
+          "conflicts",
+          "install",
+          "end"
+        ],
+        "__queues__": {
+          "initializing": { "__queue__": [] },
+          "prompting": { "__queue__": [] },
+          "configuring": { "__queue__": [] },
+          "default": { "__queue__": [] },
+          "writing": { "__queue__": [{}] },
+          "conflicts": {
+            "__queue__": [{ "name": "write memory fs to disk" }, {}]
+          },
+          "install": { "__queue__": [{}] },
+          "end": { "__queue__": [{}] }
+        },
+        "_maxListeners": 0,
+        "_events": {},
+        "_eventsCount": 1,
+        "running": true
+      },
+      "sharedFs": {
+        "domain": null,
+        "_events": {},
+        "_eventsCount": 1,
+        "_maxListeners": 0
+      },
+      "lookups": [".", "generators", "lib/generators"],
+      "aliases": [{ "match": {}, "value": "$1:app" }]
+    },
+    "resolved":
+      "C:\\Users\\jakka\\Documents\\GitHub\\generator-acsengine\\generators\\app\\index.js",
+    "namespace": "acsengine:app",
+    "_": [],
+    "skip-cache": false,
+    "skip-install": false
+  },
+  "_initOptions": {
+    "env": {
+      "domain": null,
+      "_events": {},
+      "_eventsCount": 1,
+      "arguments": [],
+      "options": {},
+      "adapter": {},
+      "cwd": "C:\\temp\\demotemp\\demo20",
+      "store": {
+        "_generators": {},
+        "_meta": {
+          "generator:app": {
+            "resolved":
+              "C:\\Users\\jakka\\AppData\\Roaming\\npm\\node_modules\\generator-generator\\app\\index.js",
+            "namespace": "generator:app"
+          },
+          "generator:subgenerator": {
+            "resolved":
+              "C:\\Users\\jakka\\AppData\\Roaming\\npm\\node_modules\\generator-generator\\subgenerator\\index.js",
+            "namespace": "generator:subgenerator"
+          },
+          "acsengine:app": {
+            "resolved":
+              "C:\\Users\\jakka\\Documents\\GitHub\\generator-acsengine\\generators\\app\\index.js",
+            "namespace": "acsengine:app"
+          }
+        }
+      },
+      "runLoop": {
+        "queueNames": [
+          "initializing",
+          "prompting",
+          "configuring",
+          "default",
+          "writing",
+          "conflicts",
+          "install",
+          "end"
+        ],
+        "__queues__": {
+          "initializing": { "__queue__": [] },
+          "prompting": { "__queue__": [] },
+          "configuring": { "__queue__": [] },
+          "default": { "__queue__": [] },
+          "writing": { "__queue__": [{}] },
+          "conflicts": {
+            "__queue__": [{ "name": "write memory fs to disk" }, {}]
+          },
+          "install": { "__queue__": [{}] },
+          "end": { "__queue__": [{}] }
+        },
+        "_maxListeners": 0,
+        "_events": {},
+        "_eventsCount": 1,
+        "running": true
+      },
+      "sharedFs": {
+        "domain": null,
+        "_events": {},
+        "_eventsCount": 1,
+        "_maxListeners": 0
+      },
+      "lookups": [".", "generators", "lib/generators"],
+      "aliases": [{ "match": {}, "value": "$1:app" }]
+    },
+    "resolved":
+      "C:\\Users\\jakka\\Documents\\GitHub\\generator-acsengine\\generators\\app\\index.js",
+    "namespace": "acsengine:app"
+  },
+  "_args": [],
+  "_options": {
+    "help": {
+      "alias": "h",
+      "description": "Print the generator's options and usage",
+      "name": "help",
+      "hide": false
+    },
+    "skip-cache": {
+      "description": "Do not remember prompt answers",
+      "default": false,
+      "name": "skip-cache",
+      "hide": false
+    },
+    "skip-install": {
+      "description": "Do not automatically install dependencies",
+      "default": false,
+      "name": "skip-install",
+      "hide": false
+    }
+  },
+  "_arguments": [],
+  "_composedWith": [],
+  "_transformStreams": [],
+  "args": [],
+  "arguments": [],
+  "env": {
+    "domain": null,
+    "_events": {},
+    "_eventsCount": 1,
+    "arguments": [],
+    "options": {},
+    "adapter": {},
+    "cwd": "C:\\temp\\demotemp\\demo20",
+    "store": {
+      "_generators": {},
+      "_meta": {
+        "generator:app": {
+          "resolved":
+            "C:\\Users\\jakka\\AppData\\Roaming\\npm\\node_modules\\generator-generator\\app\\index.js",
+          "namespace": "generator:app"
+        },
+        "generator:subgenerator": {
+          "resolved":
+            "C:\\Users\\jakka\\AppData\\Roaming\\npm\\node_modules\\generator-generator\\subgenerator\\index.js",
+          "namespace": "generator:subgenerator"
+        },
+        "acsengine:app": {
+          "resolved":
+            "C:\\Users\\jakka\\Documents\\GitHub\\generator-acsengine\\generators\\app\\index.js",
+          "namespace": "acsengine:app"
+        }
+      }
+    },
+    "runLoop": {
+      "queueNames": [
+        "initializing",
+        "prompting",
+        "configuring",
+        "default",
+        "writing",
+        "conflicts",
+        "install",
+        "end"
+      ],
+      "__queues__": {
+        "initializing": { "__queue__": [] },
+        "prompting": { "__queue__": [] },
+        "configuring": { "__queue__": [] },
+        "default": { "__queue__": [] },
+        "writing": { "__queue__": [{}] },
+        "conflicts": {
+          "__queue__": [{ "name": "write memory fs to disk" }, {}]
+        },
+        "install": { "__queue__": [{}] },
+        "end": { "__queue__": [{}] }
+      },
+      "_maxListeners": 0,
+      "_events": {},
+      "_eventsCount": 1,
+      "running": true
+    },
+    "sharedFs": {
+      "domain": null,
+      "_events": {},
+      "_eventsCount": 1,
+      "_maxListeners": 0
+    },
+    "lookups": [".", "generators", "lib/generators"],
+    "aliases": [{ "match": {}, "value": "$1:app" }]
+  },
+  "resolved":
+    "C:\\Users\\jakka\\Documents\\GitHub\\generator-acsengine\\generators\\app\\index.js",
+  "description": "",
+  "fs": {
+    "store": {
+      "domain": null,
+      "_events": {},
+      "_eventsCount": 1,
+      "_maxListeners": 0
+    }
+  },
+  "conflicter": { "force": false, "adapter": {}, "conflicts": [] },
+  "contextRoot": "C:\\temp\\demotemp\\demo20",
+  "appname": "demo20",
+  "config": {
+    "path": "C:\\temp\\demotemp\\demo20\\.yo-rc.json",
+    "name": "generator-acsengine",
+    "fs": {
+      "store": {
+        "domain": null,
+        "_events": {},
+        "_eventsCount": 1,
+        "_maxListeners": 0
+      }
+    },
+    "existed": false
+  },
+  "_globalConfig": {
+    "path": "C:\\Users\\jakka\\.yo-rc-global.json",
+    "name": "generator-acsengine:0.0.9",
+    "fs": {
+      "store": {
+        "domain": null,
+        "_events": {},
+        "_eventsCount": 1,
+        "_maxListeners": 0
+      }
+    },
+    "existed": false
+  },
+  "_sourceRoot":
+    "C:\\Users\\jakka\\Documents\\GitHub\\generator-acsengine\\generators\\app\\templates",
+  "_running": true,
+  "isWin": true,
+  "props": {
+    "windowsInstances": "1",
+    "linuxInstances": "1",
+    "dnsPrefix": "acstest",
+    "spClientId": "SomeServicePrincipleId",
+    "spSecret": "SomeServicePrincipleSecret",
+    "subscription": "SomeServiceSubscriptionId",
+    "resourceGroup": "acstestgroup",
+    "azureRegion": "southeastasia"
+  }
+}

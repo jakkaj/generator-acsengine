@@ -2,11 +2,11 @@
 const Generator = require('yeoman-generator');
 const chalk = require('chalk');
 const yosay = require('yosay');
-import helpers from './helpers';
+import helpers from './helpers/helpers';
 import * as chmod from 'chmod';
 import * as fs from 'fs';
 import * as path from 'path';
-
+import * as ncp from 'ncp';
 
 class AcsGenerator extends Generator {
   prompting() {
@@ -16,9 +16,9 @@ class AcsGenerator extends Generator {
     );
 
     var defaults = {
-      ServicePrincipleId : "SomeServicePrincipleId",
-      ServicePrincipleSecret : "SomeServicePrincipleSecret",
-      ServiceSubscriptionId : "SomeServiceSubscriptionId"
+      ServicePrincipleId: "SomeServicePrincipleId",
+      ServicePrincipleSecret: "SomeServicePrincipleSecret",
+      ServiceSubscriptionId: "SomeServiceSubscriptionId"
     }
 
     var baseDir = process.cwd();
@@ -26,16 +26,16 @@ class AcsGenerator extends Generator {
     var sp = path.join(baseDir, "azure_sp.json");
     var subs = path.join(baseDir, "azure_subs.json");
 
-    if(fs.existsSync(subs)){
+    if (fs.existsSync(subs)) {
       var subsdatafile = fs.readFileSync(subs, 'utf8');
-   
+
       var subsdata = JSON.parse(subsdatafile);
-      defaults.ServiceSubscriptionId = subsdata.subs;     
+      defaults.ServiceSubscriptionId = subsdata.subs;
     }
 
-    if(fs.existsSync(sp)){
+    if (fs.existsSync(sp)) {
       var spdatafile = fs.readFileSync(sp, 'utf8');
-      
+
       var spdata = JSON.parse(spdatafile);
       defaults.ServicePrincipleId = spdata.appId;
       defaults.ServicePrincipleSecret = spdata.password;
@@ -99,10 +99,27 @@ class AcsGenerator extends Generator {
     return this.prompt(prompts).then(props => {
       // To access props later use this.props.someAnswer;
       this.props = props;
+
+
     });
   }
 
+  private async _copyfilesfortest():Promise<boolean>{
+    return new Promise<boolean>((good, bad)=>{
+      var basePath = path.join(__dirname, "templates");
+      ncp(basePath, this.templatePath(''), ()=>{
+        good(true);
+      });
+    });      
+  }
+
   async writing() {
+
+    if(!fs.existsSync(this.templatePath('basetemplate_win.json.tpl'))){
+      
+      await this._copyfilesfortest();
+    }
+
     var done = this.async();
     this.log(
       `Okay - let's build ${chalk.red(this.props.linuxInstances)} Linux nodes and ${chalk.red(this.props.windowsInstances)} Windows nodes!`
@@ -159,7 +176,7 @@ class AcsGenerator extends Generator {
         }
       );
     }
-    
+
 
     if (this.isWin) {
 
@@ -234,6 +251,7 @@ class AcsGenerator extends Generator {
         dnsPrefix: this.props.dnsPrefix
       }
     );
+    
     this.fs.copyTpl(
       this.templatePath('bash/4_set_kubectl_config.sh'),
       this.destinationPath('bash/4_set_kubectl_config.sh'),
@@ -243,9 +261,6 @@ class AcsGenerator extends Generator {
       }
     );
 
-    
-
-
     this.fs.copyTpl(
       this.templatePath('bash/x_delete_resource_group.sh'),
       this.destinationPath('bash/x_delete_resource_group.sh'),
@@ -253,7 +268,7 @@ class AcsGenerator extends Generator {
         subscription: this.props.subscription,
         resourceGroup: this.props.resourceGroup
       }
-    );    
+    );
 
     //kube templates
 
@@ -267,23 +282,21 @@ class AcsGenerator extends Generator {
       this.destinationPath('kube/kube.windows.yaml')
     );
 
-
-  
     done();
   }
 
-  end(){
-    if(!this.isWin){
+  end() {
+    if (!this.isWin) {
       chmod(this.destinationPath('bash/1_generate_acs_template.sh'), 777);
       chmod(this.destinationPath('bash/2_prepare_account.sh'), 777);
       chmod(this.destinationPath('bash/3_deploy_cluster.sh'), 777);
-      chmod(this.destinationPath('bash/4_set_kubectl_config.sh'), 777);      
-      chmod(this.destinationPath('bash/x_delete_resource_group.sh'), 777);  
-      
+      chmod(this.destinationPath('bash/4_set_kubectl_config.sh'), 777);
+      chmod(this.destinationPath('bash/x_delete_resource_group.sh'), 777);
+
       this.log("Remember to install the ACS-Engine binaries in your path: https://github.com/Azure/acs-engine/releases")
       this.log("Now switch to the 'bash' or 'powershell' folder and run the scripts in order. Remember to follow the instructions here: https://github.com/jakkaj/generator-acsengine")
-  
-    }  
+
+    }
   }
 
   install() {
@@ -292,4 +305,4 @@ class AcsGenerator extends Generator {
 
 }
 
-export = AcsGenerator;
+export default AcsGenerator;

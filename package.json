@@ -10,7 +10,7 @@
     "url": "https://github.com/jakkaj/generator-acsengine"
   },
   "files": ["generators"],
-  "main": "generators/app/test.js",
+  "main": "generators/app/tests/test.js",
   "keywords": [
     "ACS",
     "Kubernetes",
@@ -41,6 +41,7 @@
     "chmod": "^0.2.1",
     "generate-password": "^1.4.0",
     "keypair": "^1.0.1",
+    "ncp": "^2.0.0",
     "node-rsa": "^0.4.2",
     "ssh-keygen-temp": "^0.5.0",
     "yeoman-generator": "^2.0.1",
@@ -56,7 +57,7 @@
     "prebuild": "typings install",
     "build": "tsc",
     "watch": "tsc -w --project ./src/tsconfig.json",
-    "run": "nodemon ./generator/app/test.js --delay .5"
+    "run": "nodemon ./generator/app/tests/test.js --delay .5"
   },
   "lint-staged": {
     "*.js": ["eslint --fix", "git add"],
