@@ -151,7 +151,7 @@ class AcsGenerator extends Generator {
         var fullPath = this.templatePath(templateSource);
 
         if (!fs.existsSync(fullPath)) {
-          console.log(`File ${fullPath} not found`);
+          this.log(`File ${fullPath} not found`);
           continue;
         }
 
@@ -244,52 +244,7 @@ class AcsGenerator extends Generator {
       )
     }
 
-    await this._compose(templateCompose);
-
-    // if (win && linux) {
-    //   this.fs.copyTpl(
-    //     this.templatePath('basetemplate.json.tpl'),
-    //     this.destinationPath('buildacs.json'),
-    //     {
-    //       dnsPrefix: this.props.dnsPrefix,
-    //       windowsInstances: this.props.windowsInstances,
-    //       linuxInstances: this.props.linuxInstances,
-    //       adminPassword: passwd,
-    //       sshPublicKey: rsa[1],
-    //       spClientId: this.props.spClientId,
-    //       spSecret: this.props.spSecret
-    //     }
-    //   );
-    // } else if (win) {
-    //   this.fs.copyTpl(
-    //     this.templatePath('basetemplate_win.json.tpl'),
-    //     this.destinationPath('buildacs.json'),
-    //     {
-    //       dnsPrefix: this.props.dnsPrefix,
-    //       windowsInstances: this.props.windowsInstances,
-    //       linuxInstances: this.props.linuxInstances,
-    //       adminPassword: passwd,
-    //       sshPublicKey: rsa[1],
-    //       spClientId: this.props.spClientId,
-    //       spSecret: this.props.spSecret
-    //     }
-    //   );
-    // } else {
-    //   this.fs.copyTpl(
-    //     this.templatePath('basetemplate_linux.json.tpl'),
-    //     this.destinationPath('buildacs.json'),
-    //     {
-    //       dnsPrefix: this.props.dnsPrefix,
-    //       windowsInstances: this.props.windowsInstances,
-    //       linuxInstances: this.props.linuxInstances,
-    //       adminPassword: passwd,
-    //       sshPublicKey: rsa[1],
-    //       spClientId: this.props.spClientId,
-    //       spSecret: this.props.spSecret
-    //     }
-    //   );
-    // }
-
+    await this._compose(templateCompose);    
 
     if (this.isWin) {
 
@@ -439,8 +394,7 @@ class AcsGenerator extends Generator {
       this.log("Now switch to the 'bash' or 'powershell' folder and run the scripts in order. Remember to follow the instructions here: https://github.com/jakkaj/generator-acsengine")
 
     }
-    var templateOut = fs.readFileSync(this.destinationPath(this.templateCompose.final_target), 'utf8');
-    console.log(templateOut);
+    //var templateOut = fs.readFileSync(this.destinationPath(this.templateCompose.final_target), 'utf8');
 
   }
 
