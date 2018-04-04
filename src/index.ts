@@ -103,11 +103,7 @@ class AcsGenerator extends Generator {
 
     });
   }
-
-  private _compose(source:string){
     
-  }
-
   private async _copyfilesfortest():Promise<boolean>{
     return new Promise<boolean>((good, bad)=>{
       var basePath = path.join(__dirname, "templates");
