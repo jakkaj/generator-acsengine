@@ -7,6 +7,8 @@ import * as chmod from 'chmod';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ncp from 'ncp';
+import * as temp from 'temp';
+import { ITemplateComposeOptions, ITemplateSources, ITemplateSource } from './helpers/ITemplateComposeOptions';
 
 class AcsGenerator extends Generator {
   prompting() {
@@ -14,6 +16,8 @@ class AcsGenerator extends Generator {
     this.log(
       yosay(`Welcome to the fantastic ${chalk.red('generator-acsengine')} generator!`)
     );
+
+    temp.track();
 
     var defaults = {
       ServicePrincipleId: "SomeServicePrincipleId",
@@ -103,24 +107,71 @@ class AcsGenerator extends Generator {
 
     });
   }
-
-  private _compose(source:string){
-    
+  _sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private async _copyfilesfortest():Promise<boolean>{
-    return new Promise<boolean>((good, bad)=>{
+  private async _compose(options: ITemplateComposeOptions) {
+
+    var sources = options.sources;
+    var base_props = options.base_props;
+    //process each source in order
+    for (var i in sources) {
+
+      var templateSources = sources[i];
+      var templateResults: string[];
+
+      for (var x in templateSources.templateSources) {
+
+        var templateSource = templateSources.templateSources[x].fileSource;
+        var fullPath = this.templatePath(templateSource);
+
+        if (!fs.existsSync(fullPath)) {
+          console.log(`File ${fullPath} not found`);
+          continue;
+        }
+
+        var tmp_file = temp.path({ suffix: '.tmp' });
+        console.log(tmp_file);
+        this.fs.copyTpl(fullPath, tmp_file, base_props);
+        
+        while (!fs.existsSync(tmp_file)) {
+          console.log("sleep");
+          await this._sleep(500);
+        }
+
+        var templateResult = fs.readFileSync(tmp_file, 'utf8');
+
+        templateResults.push(templateResult);
+      }
+
+      var resultString = templateResults.join(templateSources.separator);
+
+      base_props[templateSources.templateName] = resultString;
+
+
+    }
+
+    this.fs.copyTpl(this.templatePath(options.base_source), this.destinationPath(options.final_target), base_props);
+    var templateOut = fs.readFileSync(this.destinationPath(options.final_target), 'utf8');
+    console.log(templateOut);
+    temp.cleanupSync();
+
+  }
+
+  private async _copyfilesfortest(): Promise<boolean> {
+    return new Promise<boolean>((good, bad) => {
       var basePath = path.join(__dirname, "templates");
-      ncp(basePath, this.templatePath(''), ()=>{
+      ncp(basePath, this.templatePath(''), () => {
         good(true);
       });
-    });      
+    });
   }
 
   async writing() {
 
-    if(!fs.existsSync(this.templatePath('basetemplate_win.json.tpl'))){
-      
+    if (!fs.existsSync(this.templatePath('basetemplate_win.json.tpl'))) {
+
       await this._copyfilesfortest();
     }
 
@@ -132,6 +183,39 @@ class AcsGenerator extends Generator {
     var h = new helpers(this.destinationPath(""));
     var rsa = await h.GenerateRSAKeys();
     var passwd = h.GenerateStrongPassword();
+
+
+    var base_props = {
+      dnsPrefix: this.props.dnsPrefix,
+      windowsInstances: this.props.windowsInstances,
+      linuxInstances: this.props.linuxInstances,
+      adminPassword: passwd,
+      sshPublicKey: rsa[1],
+      spClientId: this.props.spClientId,
+      spSecret: this.props.spSecret
+    };
+
+
+    var templateCompose: ITemplateComposeOptions = {
+      base_source: "compose/baseTemplate.json.tpl",
+      base_props: base_props,
+      final_target: "compose/composedOutput.json",
+      sources: [{
+        separator: ",",
+        templateName: "agentPoolProfiles",
+        templateSources: [
+          {
+            fileSource: 'compose/linuxPool.json.tpl'
+          },
+          {
+            fileSource: 'compose/windowsPool.json.tpl'
+          }
+        ]
+      }]
+    }
+
+    await this._compose(templateCompose);
+
 
 
     var linux: boolean = this.props.linuxInstances != "0" && this.props.linuxInstances != 0;

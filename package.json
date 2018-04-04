@@ -44,6 +44,7 @@
     "ncp": "^2.0.0",
     "node-rsa": "^0.4.2",
     "ssh-keygen-temp": "^0.5.0",
+    "temp": "^0.8.3",
     "yeoman-generator": "^2.0.1",
     "yosay": "^2.0.1"
   },
