@@ -30,16 +30,16 @@ spec:
         image: jakkaj/basicaspnet:1 # Update the version of nginx from 1.7.9 to 1.8
         ports:
         - containerPort: 80
-      nodeSelector:
-        beta.kubernetes.io/os: linux
-      resources:
-          limits:
-            alpha.kubernetes.io/nvidia-gpu: 1
+        resources:
+            limits:
+              alpha.kubernetes.io/nvidia-gpu: 1
         volumeMounts:
         - name: nvidia
           mountPath: /usr/local/nvidia
+      nodeSelector:
+        beta.kubernetes.io/os: linux      
       volumes:
-          - name: nvidia
-            hostPath:
-              path: /usr/local/nvidia
+      - name: nvidia
+        hostPath:
+          path: /usr/local/nvidia
 

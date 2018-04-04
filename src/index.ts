@@ -336,6 +336,15 @@ class AcsGenerator extends Generator {
         }
       );
 
+      this.fs.copyTpl(
+        this.templatePath('powershell/x_delete_service_principal.ps1'),
+        this.destinationPath('powershell/x_delete_service_principal.ps1'),
+        {
+          subscription: this.props.subscription,
+          spClientId: this.props.spClientId
+        }
+      );
+
     }
 
     //bash stuff
@@ -382,6 +391,15 @@ class AcsGenerator extends Generator {
         resourceGroup: this.props.resourceGroup
       }
     );
+
+    this.fs.copyTpl(
+      this.templatePath('bash/x_delete_service_principal.sh'),
+      this.destinationPath('bash/x_delete_service_principal.sh'),
+      {
+        subscription: this.props.subscription,
+        spClientId: this.props.spClientId
+      }
+    );   
 
     //kube templates
 
