@@ -62,7 +62,7 @@ export default class Helpers {
 
         });
 
-        pass = JSON.stringify(pass).replace(/^\"+|\"+$/g, "").replace(/\\/g, "\\\\"); //make it safe for things
+        pass = JSON.stringify(pass).replace(/^\"+|\"+$/g, "").replace(/\\/g, ""); //make it safe for things
 
         console.log(`Password: ${pass}`);
 
