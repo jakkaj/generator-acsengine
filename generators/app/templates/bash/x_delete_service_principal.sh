@@ -6,5 +6,5 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
     echo "Okay Deleting"
     az account set --subscription "<%= subscription %>"
-    az ad sp delete -id "<%= spClientId %>"
+    az ad sp delete --id "<%= spClientId %>"
 fi
