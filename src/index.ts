@@ -7,8 +7,8 @@ import * as chmod from 'chmod';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ncp from 'ncp';
-import * as temp from 'temp';
 import { ITemplateComposeOptions, ITemplateSources, ITemplateSource } from './helpers/ITemplateComposeOptions';
+import * as ejs from 'ejs';
 
 class AcsGenerator extends Generator {
   prompting() {
@@ -16,8 +16,6 @@ class AcsGenerator extends Generator {
     this.log(
       yosay(`Welcome to the fantastic ${chalk.red('generator-acsengine')} generator!`)
     );
-
-    temp.track();
 
     var defaults = {
       ServicePrincipleId: "SomeServicePrincipleId",
@@ -57,6 +55,12 @@ class AcsGenerator extends Generator {
         name: 'linuxInstances',
         message: 'How many Linux based nodes would you like?',
         default: 2
+      },
+      {
+        type: 'input',
+        name: 'gpuInstances',
+        message: 'How many Linux based nodes with GPU capability would you like? Make sure you pick a region that has GPU capability',
+        default: 0
       },
       {
         type: 'input',
@@ -111,6 +115,18 @@ class AcsGenerator extends Generator {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  private async _renderFile(file:string, template:any):Promise<string>{
+    return new Promise<string>((good, bad)=>{
+      ejs.renderFile(file, template, (err, str)=>{
+        if(err){
+          bad(err);
+        }else{
+          good(str);
+        }
+      });
+    });
+  }
+
   private async _compose(options: ITemplateComposeOptions) {
 
     var sources = options.sources;
@@ -119,7 +135,7 @@ class AcsGenerator extends Generator {
     for (var i in sources) {
 
       var templateSources = sources[i];
-      var templateResults: string[];
+      var templateResults: string[] = [];
 
       for (var x in templateSources.templateSources) {
 
@@ -131,16 +147,7 @@ class AcsGenerator extends Generator {
           continue;
         }
 
-        var tmp_file = temp.path({ suffix: '.tmp' });
-        console.log(tmp_file);
-        this.fs.copyTpl(fullPath, tmp_file, base_props);
-        
-        while (!fs.existsSync(tmp_file)) {
-          console.log("sleep");
-          await this._sleep(500);
-        }
-
-        var templateResult = fs.readFileSync(tmp_file, 'utf8');
+        var templateResult = await this._renderFile(fullPath, base_props); 
 
         templateResults.push(templateResult);
       }
@@ -151,12 +158,8 @@ class AcsGenerator extends Generator {
 
 
     }
-
-    this.fs.copyTpl(this.templatePath(options.base_source), this.destinationPath(options.final_target), base_props);
-    var templateOut = fs.readFileSync(this.destinationPath(options.final_target), 'utf8');
-    console.log(templateOut);
-    temp.cleanupSync();
-
+    this.templateCompose = options;
+    this.fs.copyTpl(this.templatePath(options.base_source), this.destinationPath(options.final_target), base_props);    
   }
 
   private async _copyfilesfortest(): Promise<boolean> {
@@ -184,7 +187,6 @@ class AcsGenerator extends Generator {
     var rsa = await h.GenerateRSAKeys();
     var passwd = h.GenerateStrongPassword();
 
-
     var base_props = {
       dnsPrefix: this.props.dnsPrefix,
       windowsInstances: this.props.windowsInstances,
@@ -193,77 +195,83 @@ class AcsGenerator extends Generator {
       sshPublicKey: rsa[1],
       spClientId: this.props.spClientId,
       spSecret: this.props.spSecret
-    };
-
+    };    
 
     var templateCompose: ITemplateComposeOptions = {
       base_source: "compose/baseTemplate.json.tpl",
       base_props: base_props,
-      final_target: "compose/composedOutput.json",
+      final_target: "buildacs.json",
       sources: [{
         separator: ",",
         templateName: "agentPoolProfiles",
-        templateSources: [
-          {
-            fileSource: 'compose/linuxPool.json.tpl'
-          },
-          {
-            fileSource: 'compose/windowsPool.json.tpl'
-          }
-        ]
+        templateSources: []
       }]
+    }
+    var linux: boolean = this.props.linuxInstances != "0" && this.props.linuxInstances != 0;
+    var win: boolean = this.props.windowsInstances != "0" && this.props.windowsInstances != 0;
+    var gpu: boolean = this.props.gpuInstances != "0" && this.props.gpuInstances != 0;
+   
+    if(linux){
+      templateCompose.sources[0].templateSources.push(
+        {
+          fileSource: 'compose/linuxPool.json.tpl'
+        }
+      )
+    }
+
+    if(win){
+      templateCompose.sources[0].templateSources.push(
+        {
+          fileSource: 'compose/windowsPool.json.tpl'
+        }
+      )
     }
 
     await this._compose(templateCompose);
 
-
-
-    var linux: boolean = this.props.linuxInstances != "0" && this.props.linuxInstances != 0;
-    var win: boolean = this.props.windowsInstances != "0" && this.props.windowsInstances != 0;
-
-    if (win && linux) {
-      this.fs.copyTpl(
-        this.templatePath('basetemplate.json.tpl'),
-        this.destinationPath('buildacs.json'),
-        {
-          dnsPrefix: this.props.dnsPrefix,
-          windowsInstances: this.props.windowsInstances,
-          linuxInstances: this.props.linuxInstances,
-          adminPassword: passwd,
-          sshPublicKey: rsa[1],
-          spClientId: this.props.spClientId,
-          spSecret: this.props.spSecret
-        }
-      );
-    } else if (win) {
-      this.fs.copyTpl(
-        this.templatePath('basetemplate_win.json.tpl'),
-        this.destinationPath('buildacs.json'),
-        {
-          dnsPrefix: this.props.dnsPrefix,
-          windowsInstances: this.props.windowsInstances,
-          linuxInstances: this.props.linuxInstances,
-          adminPassword: passwd,
-          sshPublicKey: rsa[1],
-          spClientId: this.props.spClientId,
-          spSecret: this.props.spSecret
-        }
-      );
-    } else {
-      this.fs.copyTpl(
-        this.templatePath('basetemplate_linux.json.tpl'),
-        this.destinationPath('buildacs.json'),
-        {
-          dnsPrefix: this.props.dnsPrefix,
-          windowsInstances: this.props.windowsInstances,
-          linuxInstances: this.props.linuxInstances,
-          adminPassword: passwd,
-          sshPublicKey: rsa[1],
-          spClientId: this.props.spClientId,
-          spSecret: this.props.spSecret
-        }
-      );
-    }
+    // if (win && linux) {
+    //   this.fs.copyTpl(
+    //     this.templatePath('basetemplate.json.tpl'),
+    //     this.destinationPath('buildacs.json'),
+    //     {
+    //       dnsPrefix: this.props.dnsPrefix,
+    //       windowsInstances: this.props.windowsInstances,
+    //       linuxInstances: this.props.linuxInstances,
+    //       adminPassword: passwd,
+    //       sshPublicKey: rsa[1],
+    //       spClientId: this.props.spClientId,
+    //       spSecret: this.props.spSecret
+    //     }
+    //   );
+    // } else if (win) {
+    //   this.fs.copyTpl(
+    //     this.templatePath('basetemplate_win.json.tpl'),
+    //     this.destinationPath('buildacs.json'),
+    //     {
+    //       dnsPrefix: this.props.dnsPrefix,
+    //       windowsInstances: this.props.windowsInstances,
+    //       linuxInstances: this.props.linuxInstances,
+    //       adminPassword: passwd,
+    //       sshPublicKey: rsa[1],
+    //       spClientId: this.props.spClientId,
+    //       spSecret: this.props.spSecret
+    //     }
+    //   );
+    // } else {
+    //   this.fs.copyTpl(
+    //     this.templatePath('basetemplate_linux.json.tpl'),
+    //     this.destinationPath('buildacs.json'),
+    //     {
+    //       dnsPrefix: this.props.dnsPrefix,
+    //       windowsInstances: this.props.windowsInstances,
+    //       linuxInstances: this.props.linuxInstances,
+    //       adminPassword: passwd,
+    //       sshPublicKey: rsa[1],
+    //       spClientId: this.props.spClientId,
+    //       spSecret: this.props.spSecret
+    //     }
+    //   );
+    // }
 
 
     if (this.isWin) {
@@ -385,6 +393,9 @@ class AcsGenerator extends Generator {
       this.log("Now switch to the 'bash' or 'powershell' folder and run the scripts in order. Remember to follow the instructions here: https://github.com/jakkaj/generator-acsengine")
 
     }
+    var templateOut = fs.readFileSync(this.destinationPath(this.templateCompose.final_target), 'utf8');
+    console.log(templateOut);
+
   }
 
   install() {

@@ -11,11 +11,11 @@
       "vmSize": "Standard_D2_v2"
     },
     "agentPoolProfiles": [
-      <%= agentPoolProfiles %>
+      <%- agentPoolProfiles %>
     ],
     "windowsProfile": {
       "adminUsername": "azureuser",
-      "adminPassword": "<%= adminPassword %>"
+      "adminPassword": "<%- adminPassword %>"
     },
     "linuxProfile": {
       "adminUsername": "azureuser",
