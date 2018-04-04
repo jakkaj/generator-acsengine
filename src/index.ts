@@ -7,8 +7,14 @@ import * as chmod from 'chmod';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ncp from 'ncp';
+import { ITemplateComposeOptions, ITemplateSources, ITemplateSource } from './helpers/ITemplateComposeOptions';
+import * as ejs from 'ejs';
 
 class AcsGenerator extends Generator {
+  /**
+   *
+   */
+  
   prompting() {
     // Have Yeoman greet the user.
     this.log(
@@ -41,7 +47,7 @@ class AcsGenerator extends Generator {
       defaults.ServicePrincipleSecret = spdata.password;
     }
 
-    const prompts = [
+    var prompts = [
       {
         type: 'input',
         name: 'windowsInstances',
@@ -53,6 +59,12 @@ class AcsGenerator extends Generator {
         name: 'linuxInstances',
         message: 'How many Linux based nodes would you like?',
         default: 2
+      },
+      {
+        type: 'input',
+        name: 'gpuInstances',
+        message: 'How many Linux based nodes with GPU capability would you like? Make sure you pick a region that has GPU capability (e.g. southcentralus)',
+        default: 0
       },
       {
         type: 'input',
@@ -87,14 +99,18 @@ class AcsGenerator extends Generator {
       {
         type: 'input',
         name: 'azureRegion',
-        message: 'Please enter an Azure region. Type "az account list-locations" to get the list (use the "name" field!).',
+        message: 'Please enter an Azure region. Type \'az account list-locations | findstr -i \"name\"\' (or | grep \"name\") to get the list (use the "name" field!).',
         default: "southeastasia"
       }
 
-
+      
     ];
 
     this.isWin = process.platform === "win32";
+
+    if(this.options.spscript){
+      prompts = [];
+    }
 
     return this.prompt(prompts).then(props => {
       // To access props later use this.props.someAnswer;
@@ -103,24 +119,74 @@ class AcsGenerator extends Generator {
 
     });
   }
-    
-  private async _copyfilesfortest():Promise<boolean>{
-    return new Promise<boolean>((good, bad)=>{
+  _sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private async _renderFile(file:string, template:any):Promise<string>{
+    return new Promise<string>((good, bad)=>{
+      ejs.renderFile(file, template, (err, str)=>{
+        if(err){
+          bad(err);
+        }else{
+          good(str);
+        }
+      });
+    });
+  }
+
+  private async _compose(options: ITemplateComposeOptions) {
+
+    var sources = options.sources;
+    var base_props = options.base_props;
+    //process each source in order
+    for (var i in sources) {
+
+      var templateSources = sources[i];
+      var templateResults: string[] = [];
+
+      for (var x in templateSources.templateSources) {
+
+        var templateSource = templateSources.templateSources[x].fileSource;
+        var fullPath = this.templatePath(templateSource);
+
+        if (!fs.existsSync(fullPath)) {
+          this.log(`File ${fullPath} not found`);
+          continue;
+        }
+
+        var templateResult = await this._renderFile(fullPath, base_props); 
+
+        templateResults.push(templateResult);
+      }
+
+      var resultString = templateResults.join(templateSources.separator);
+
+      base_props[templateSources.templateName] = resultString;
+
+
+    }
+    this.templateCompose = options;
+    this.fs.copyTpl(this.templatePath(options.base_source), this.destinationPath(options.final_target), base_props);    
+  }
+
+  private async _copyfilesfortest(): Promise<boolean> {
+    return new Promise<boolean>((good, bad) => {
       var basePath = path.join(__dirname, "templates");
-      ncp(basePath, this.templatePath(''), ()=>{
+      ncp(basePath, this.templatePath(''), () => {
         good(true);
       });
-    });      
+    });
   }
 
   async writing() {
 
-    if(!fs.existsSync(this.templatePath('basetemplate_win.json.tpl'))){
-      
+    if (!fs.existsSync(this.templatePath('basetemplate_win.json.tpl'))) {
       await this._copyfilesfortest();
     }
 
     var done = this.async();
+
     this.log(
       `Okay - let's build ${chalk.red(this.props.linuxInstances)} Linux nodes and ${chalk.red(this.props.windowsInstances)} Windows nodes!`
     );
@@ -129,54 +195,56 @@ class AcsGenerator extends Generator {
     var rsa = await h.GenerateRSAKeys();
     var passwd = h.GenerateStrongPassword();
 
+    var base_props = {
+      dnsPrefix: this.props.dnsPrefix,
+      windowsInstances: this.props.windowsInstances,
+      linuxInstances: this.props.linuxInstances,
+      gpuInstances: this.props.gpuInstances,
+      adminPassword: passwd,
+      sshPublicKey: rsa[1],
+      spClientId: this.props.spClientId,
+      spSecret: this.props.spSecret
+    };    
 
+    var templateCompose: ITemplateComposeOptions = {
+      base_source: "compose/baseTemplate.json.tpl",
+      base_props: base_props,
+      final_target: "buildacs.json",
+      sources: [{
+        separator: ",",
+        templateName: "agentPoolProfiles",
+        templateSources: []
+      }]
+    }
     var linux: boolean = this.props.linuxInstances != "0" && this.props.linuxInstances != 0;
     var win: boolean = this.props.windowsInstances != "0" && this.props.windowsInstances != 0;
-
-    if (win && linux) {
-      this.fs.copyTpl(
-        this.templatePath('basetemplate.json.tpl'),
-        this.destinationPath('buildacs.json'),
+    var gpu: boolean = this.props.gpuInstances != "0" && this.props.gpuInstances != 0;
+   
+    if(linux){
+      templateCompose.sources[0].templateSources.push(
         {
-          dnsPrefix: this.props.dnsPrefix,
-          windowsInstances: this.props.windowsInstances,
-          linuxInstances: this.props.linuxInstances,
-          adminPassword: passwd,
-          sshPublicKey: rsa[1],
-          spClientId: this.props.spClientId,
-          spSecret: this.props.spSecret
+          fileSource: 'compose/linuxPool.json.tpl'
         }
-      );
-    } else if (win) {
-      this.fs.copyTpl(
-        this.templatePath('basetemplate_win.json.tpl'),
-        this.destinationPath('buildacs.json'),
-        {
-          dnsPrefix: this.props.dnsPrefix,
-          windowsInstances: this.props.windowsInstances,
-          linuxInstances: this.props.linuxInstances,
-          adminPassword: passwd,
-          sshPublicKey: rsa[1],
-          spClientId: this.props.spClientId,
-          spSecret: this.props.spSecret
-        }
-      );
-    } else {
-      this.fs.copyTpl(
-        this.templatePath('basetemplate_linux.json.tpl'),
-        this.destinationPath('buildacs.json'),
-        {
-          dnsPrefix: this.props.dnsPrefix,
-          windowsInstances: this.props.windowsInstances,
-          linuxInstances: this.props.linuxInstances,
-          adminPassword: passwd,
-          sshPublicKey: rsa[1],
-          spClientId: this.props.spClientId,
-          spSecret: this.props.spSecret
-        }
-      );
+      )
     }
 
+    if(gpu){
+      templateCompose.sources[0].templateSources.push(
+        {
+          fileSource: 'compose/linuxPool.gpu.json.tpl'
+        }
+      )
+    }
+
+    if(win){
+      templateCompose.sources[0].templateSources.push(
+        {
+          fileSource: 'compose/windowsPool.json.tpl'
+        }
+      )
+    }
+
+    await this._compose(templateCompose);    
 
     if (this.isWin) {
 
@@ -220,6 +288,15 @@ class AcsGenerator extends Generator {
         {
           subscription: this.props.subscription,
           resourceGroup: this.props.resourceGroup
+        }
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('powershell/x_delete_service_principal.ps1'),
+        this.destinationPath('powershell/x_delete_service_principal.ps1'),
+        {
+          subscription: this.props.subscription,
+          spClientId: this.props.spClientId
         }
       );
 
@@ -270,6 +347,15 @@ class AcsGenerator extends Generator {
       }
     );
 
+    this.fs.copyTpl(
+      this.templatePath('bash/x_delete_service_principal.sh'),
+      this.destinationPath('bash/x_delete_service_principal.sh'),
+      {
+        subscription: this.props.subscription,
+        spClientId: this.props.spClientId
+      }
+    );   
+
     //kube templates
 
     this.fs.copy(
@@ -282,6 +368,16 @@ class AcsGenerator extends Generator {
       this.destinationPath('kube/kube.windows.yaml')
     );
 
+    this.fs.copy(
+      this.templatePath('kube/kube.gpu.yaml'),
+      this.destinationPath('kube/kube.gpu.yaml')
+    );
+
+    this.fs.copy(
+      this.templatePath('bash/sp.sh'),
+      this.destinationPath('sp.sh')
+    );
+
     done();
   }
 
@@ -292,11 +388,14 @@ class AcsGenerator extends Generator {
       chmod(this.destinationPath('bash/3_deploy_cluster.sh'), 777);
       chmod(this.destinationPath('bash/4_set_kubectl_config.sh'), 777);
       chmod(this.destinationPath('bash/x_delete_resource_group.sh'), 777);
+      chmod(this.destinationPath('sp.sh'), 777);
 
       this.log("Remember to install the ACS-Engine binaries in your path: https://github.com/Azure/acs-engine/releases")
       this.log("Now switch to the 'bash' or 'powershell' folder and run the scripts in order. Remember to follow the instructions here: https://github.com/jakkaj/generator-acsengine")
 
     }
+    //var templateOut = fs.readFileSync(this.destinationPath(this.templateCompose.final_target), 'utf8');
+
   }
 
   install() {
@@ -305,4 +404,4 @@ class AcsGenerator extends Generator {
 
 }
 
-export default AcsGenerator;
+module.exports = AcsGenerator;

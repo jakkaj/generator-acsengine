@@ -30,7 +30,7 @@
     ],
     "windowsProfile": {
       "adminUsername": "azureuser",
-      "adminPassword": "<%= adminPassword %>"
+      "adminPassword": "<%- adminPassword %>"
     },
     "linuxProfile": {
       "adminUsername": "azureuser",

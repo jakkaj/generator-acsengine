@@ -36,9 +36,11 @@
     "yeoman-test": "^1.7.0"
   },
   "dependencies": {
+    "@types/ejs": "^2.5.0",
     "@types/node": "^9.6.0",
     "chalk": "^2.1.0",
     "chmod": "^0.2.1",
+    "ejs": "^2.5.8",
     "generate-password": "^1.4.0",
     "keypair": "^1.0.1",
     "ncp": "^2.0.0",
