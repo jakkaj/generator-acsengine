@@ -3,7 +3,7 @@ import helpers from '../helpers/helpers';
 const path = require('path');
 const assert = require('yeoman-assert');
 const testhelpers = require('yeoman-test');
-import AcsGenerator from '../index';
+import * as AcsGenerator from '../index';
 import * as fs from 'fs';
 class test {
 
@@ -16,6 +16,7 @@ class test {
                     {
                         windowsInstances: "1",
                         "linuxInstances": "1",
+                        "gpuInstances": "2",
                         "dnsPrefix": "acstest",
                         "spClientId": "SomeServicePrincipleId",
                         "spSecret": "SomeServicePrincipleSecret",

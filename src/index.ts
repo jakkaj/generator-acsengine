@@ -11,6 +11,10 @@ import { ITemplateComposeOptions, ITemplateSources, ITemplateSource } from './he
 import * as ejs from 'ejs';
 
 class AcsGenerator extends Generator {
+  /**
+   *
+   */
+  
   prompting() {
     // Have Yeoman greet the user.
     this.log(
@@ -43,7 +47,7 @@ class AcsGenerator extends Generator {
       defaults.ServicePrincipleSecret = spdata.password;
     }
 
-    const prompts = [
+    var prompts = [
       {
         type: 'input',
         name: 'windowsInstances',
@@ -59,7 +63,7 @@ class AcsGenerator extends Generator {
       {
         type: 'input',
         name: 'gpuInstances',
-        message: 'How many Linux based nodes with GPU capability would you like? Make sure you pick a region that has GPU capability',
+        message: 'How many Linux based nodes with GPU capability would you like? Make sure you pick a region that has GPU capability (e.g. southcentralus)',
         default: 0
       },
       {
@@ -95,14 +99,18 @@ class AcsGenerator extends Generator {
       {
         type: 'input',
         name: 'azureRegion',
-        message: 'Please enter an Azure region. Type "az account list-locations" to get the list (use the "name" field!).',
+        message: 'Please enter an Azure region. Type \'az account list-locations | findstr -i \"name\"\' (or | grep \"name\") to get the list (use the "name" field!).',
         default: "southeastasia"
       }
 
-
+      
     ];
 
     this.isWin = process.platform === "win32";
+
+    if(this.options.spscript){
+      prompts = [];
+    }
 
     return this.prompt(prompts).then(props => {
       // To access props later use this.props.someAnswer;
@@ -174,11 +182,11 @@ class AcsGenerator extends Generator {
   async writing() {
 
     if (!fs.existsSync(this.templatePath('basetemplate_win.json.tpl'))) {
-
       await this._copyfilesfortest();
     }
 
     var done = this.async();
+
     this.log(
       `Okay - let's build ${chalk.red(this.props.linuxInstances)} Linux nodes and ${chalk.red(this.props.windowsInstances)} Windows nodes!`
     );
@@ -191,6 +199,7 @@ class AcsGenerator extends Generator {
       dnsPrefix: this.props.dnsPrefix,
       windowsInstances: this.props.windowsInstances,
       linuxInstances: this.props.linuxInstances,
+      gpuInstances: this.props.gpuInstances,
       adminPassword: passwd,
       sshPublicKey: rsa[1],
       spClientId: this.props.spClientId,
@@ -215,6 +224,14 @@ class AcsGenerator extends Generator {
       templateCompose.sources[0].templateSources.push(
         {
           fileSource: 'compose/linuxPool.json.tpl'
+        }
+      )
+    }
+
+    if(gpu){
+      templateCompose.sources[0].templateSources.push(
+        {
+          fileSource: 'compose/linuxPool.gpu.json.tpl'
         }
       )
     }
@@ -378,6 +395,16 @@ class AcsGenerator extends Generator {
       this.destinationPath('kube/kube.windows.yaml')
     );
 
+    this.fs.copy(
+      this.templatePath('kube/kube.gpu.yaml'),
+      this.destinationPath('kube/kube.gpu.yaml')
+    );
+
+    this.fs.copy(
+      this.templatePath('bash/sp.sh'),
+      this.destinationPath('sp.sh')
+    );
+
     done();
   }
 
@@ -388,6 +415,7 @@ class AcsGenerator extends Generator {
       chmod(this.destinationPath('bash/3_deploy_cluster.sh'), 777);
       chmod(this.destinationPath('bash/4_set_kubectl_config.sh'), 777);
       chmod(this.destinationPath('bash/x_delete_resource_group.sh'), 777);
+      chmod(this.destinationPath('sp.sh'), 777);
 
       this.log("Remember to install the ACS-Engine binaries in your path: https://github.com/Azure/acs-engine/releases")
       this.log("Now switch to the 'bash' or 'powershell' folder and run the scripts in order. Remember to follow the instructions here: https://github.com/jakkaj/generator-acsengine")
@@ -404,4 +432,4 @@ class AcsGenerator extends Generator {
 
 }
 
-export default AcsGenerator;
+module.exports = AcsGenerator;
