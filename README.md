@@ -65,6 +65,10 @@ The questions you'll be asked as you run the generator are:
 
 - How many Windows based nodes would you like?
 - How many Linux based nodes would you like?
+- How many Linux based nodes with GPU capability would you like?
+
+    * Remember to choose a region (later in the steps) that supports GPU based VMs. See [this guide](https://azure.microsoft.com/en-us/global-infrastructure/services/) for more information.
+
 - What DNS prefix would you like?
 
     * This will be the host dns name of your cluster
