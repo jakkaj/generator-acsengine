@@ -375,7 +375,7 @@ class AcsGenerator extends Generator {
 
     this.fs.copy(
       this.templatePath('bash/sp.sh'),
-      this.destinationPath('sp.sh')
+      this.destinationPath('create_service_principal.sh')
     );
 
     done();
@@ -388,7 +388,8 @@ class AcsGenerator extends Generator {
       chmod(this.destinationPath('bash/3_deploy_cluster.sh'), 777);
       chmod(this.destinationPath('bash/4_set_kubectl_config.sh'), 777);
       chmod(this.destinationPath('bash/x_delete_resource_group.sh'), 777);
-      chmod(this.destinationPath('sp.sh'), 777);
+      chmod(this.destinationPath('bash/x_delete_service_principal.sh'), 777);
+      chmod(this.destinationPath('create_service_principal.sh'), 777);
 
       this.log("Remember to install the ACS-Engine binaries in your path: https://github.com/Azure/acs-engine/releases")
       this.log("Now switch to the 'bash' or 'powershell' folder and run the scripts in order. Remember to follow the instructions here: https://github.com/jakkaj/generator-acsengine")
