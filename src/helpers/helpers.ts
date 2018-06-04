@@ -63,7 +63,8 @@ export default class Helpers {
         });
 
         pass = JSON.stringify(pass).replace(/^\"+|\"+$/g, "").replace(/\\/g, ""); //make it safe for things
-
+        pass = pass.replace("\"", "");
+        
         console.log(`Password: ${pass}`);
 
         var location = path.join(this._dirbase, 'windows_password.txt');
