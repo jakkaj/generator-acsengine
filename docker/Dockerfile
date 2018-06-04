@@ -14,9 +14,9 @@ RUN apt-get install -y nodejs
 
 #download and install stuff
 
-RUN wget -O acs-engine.tar.gz https://github.com/Azure/acs-engine/releases/download/v0.14.6/acs-engine-v0.14.6-linux-amd64.tar.gz 
+RUN wget -O acs-engine.tar.gz https://github.com/Azure/acs-engine/releases/download/v0.17.1/acs-engine-v0.17.1-linux-amd64.tar.gz 
 RUN tar -xvf acs-engine.tar.gz
-RUN mv acs-engine-v0.14.6-linux-amd64/acs-engine /usr/local/bin
+RUN mv acs-engine-v0.17.1-linux-amd64/acs-engine /usr/local/bin
 RUN chmod +x /usr/local/bin/acs-engine
 
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
