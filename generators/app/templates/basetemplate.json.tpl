@@ -7,7 +7,7 @@
       "orchestratorRelease": "1.9",
       "kubernetesConfig": {
         "apiServerConfig": {
-          "--admission-control": "NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,DenyEscalatingExec,AlwaysPullImages"
+          "--admission-control": "NamespaceLifecycle,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,AlwaysPullImages"
         }
       } 
     },
