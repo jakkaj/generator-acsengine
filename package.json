@@ -1,15 +1,16 @@
 {
   "name": "generator-acsengine",
-  "version": "0.0.16",
-  "description":
-    "Simple Yeoman Generator to help get started with the ACS Engine",
+  "version": "0.0.18",
+  "description": "Simple Yeoman Generator to help get started with the ACS Engine",
   "homepage": "https://github.com/jakkaj/generator-acsengine",
   "author": {
     "name": "Jordan Knight",
     "email": "jakkaj@gmail.com",
     "url": "https://github.com/jakkaj/generator-acsengine"
   },
-  "files": ["generators"],
+  "files": [
+    "generators"
+  ],
   "main": "generators/app/tests/test.js",
   "keywords": [
     "ACS",
@@ -19,41 +20,40 @@
     "yeoman-generator"
   ],
   "devDependencies": {
-    "@types/yeoman-generator": "^2.0.1",
+    "@types/yeoman-generator": "^2.0.3",
     "ava": "^0.25.0",
     "eslint": "^4.1.0",
     "eslint-config-prettier": "^2.4.0",
     "eslint-config-xo": "^0.18.2",
     "eslint-plugin-prettier": "^2.2.0",
     "husky": "^0.14.3",
-    "jest": "^22.0.6",
+    "jest": "^22.4.4",
     "lint-staged": "^4.2.1",
-    "nodemon": "^1.17.2",
+    "nodemon": "^1.17.5",
     "nsp": "^2.6.3",
-    "prettier": "^1.7.0",
-    "typescript": "^2.7.2",
-    "yeoman-assert": "^3.1.0",
-    "yeoman-test": "^1.7.0"
+    "prettier": "^1.13.4",
+    "typescript": "^2.9.1",
+    "yeoman-assert": "^3.1.1",
+    "yeoman-test": "^1.7.2"
   },
   "dependencies": {
-    "@types/ejs": "^2.5.0",
-    "@types/node": "^9.6.0",
-    "chalk": "^2.1.0",
+    "@types/ejs": "^2.5.1",
+    "@types/node": "^9.6.20",
+    "chalk": "^2.4.1",
     "chmod": "^0.2.1",
-    "ejs": "^2.5.8",
+    "ejs": "^2.6.1",
     "generate-password": "^1.4.0",
     "keypair": "^1.0.1",
     "ncp": "^2.0.0",
     "node-rsa": "^0.4.2",
     "ssh-keygen-temp": "^0.5.0",
-    "yeoman-generator": "^2.0.1",
-    "yosay": "^2.0.1"
+    "yeoman-generator": "^2.0.5",
+    "yosay": "^2.0.2"
   },
   "jest": {
     "testEnvironment": "node"
   },
   "scripts": {
-    "prepublish": "nsp check",
     "pretest": "eslint .",
     "precommit": "lint-staged",
     "prebuild": "typings install",
@@ -62,11 +62,20 @@
     "run": "nodemon ./generator/app/tests/test.js --delay .5"
   },
   "lint-staged": {
-    "*.js": ["eslint --fix", "git add"],
-    "*.json": ["prettier --write", "git add"]
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.json": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "eslintConfig": {
-    "extends": ["xo", "prettier"],
+    "extends": [
+      "xo",
+      "prettier"
+    ],
     "env": {
       "jest": true,
       "node": true
@@ -80,7 +89,9 @@
         }
       ]
     },
-    "plugins": ["prettier"]
+    "plugins": [
+      "prettier"
+    ]
   },
   "repository": "https://github.com/jakkaj/generator-acsengine.git",
   "license": "MIT"
